@@ -1,0 +1,12 @@
+{
+  "jobs": [
+    {
+      "id": 101,
+      "title": "Software Engineer, Workflow Systems",
+      "absolute_url": "https://boards.greenhouse.io/acme/jobs/101",
+      "location": {"name": "Remote - Philippines"},
+      "updated_at": "2026-08-30T11:00:00Z",
+      "content": "<p>Python, React, SQL, and operational dashboards.</p>"
+    }
+  ]
+}

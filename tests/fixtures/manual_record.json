@@ -1,0 +1,12 @@
+{
+  "source_record_id": "manual-score-1",
+  "source_url": "https://example.com/jobs/manual-score-1",
+  "apply_url": "https://example.com/jobs/manual-score-1/apply",
+  "company": "Manual Company",
+  "title": "Full Stack Automation Developer",
+  "location_text": "Remote - Philippines",
+  "country": "Philippines",
+  "work_arrangement": "remote",
+  "opportunity_type": "technical",
+  "requirements": ["Python", "TypeScript", "React"]
+}

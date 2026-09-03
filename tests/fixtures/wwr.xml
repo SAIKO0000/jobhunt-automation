@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>We Work Remotely</title>
+    <item>
+      <title>Example Labs: Internal Tools Developer</title>
+      <link>https://weworkremotely.com/remote-jobs/example-labs-internal-tools-developer</link>
+      <guid>wwr-1</guid>
+      <pubDate>Sun, 30 Aug 2026 10:00:00 +0000</pubDate>
+      <description><![CDATA[<p>Build React and Python operations tools.</p>]]></description>
+      <category>Full-Stack Programming</category>
+      <category>Remote</category>
+    </item>
+  </channel>
+</rss>

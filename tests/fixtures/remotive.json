@@ -1,0 +1,23 @@
+{
+  "0-legal-notice": "Remotive API Legal Notice",
+  "job-count": 2,
+  "jobs": [
+    {
+      "id": 72001,
+      "url": "https://remotive.com/remote-jobs/software-dev/automation-support-developer-72001",
+      "title": "Automation Support Developer",
+      "company_name": "Example Operations",
+      "category": "Software Development",
+      "job_type": "full_time",
+      "publication_date": "2026-09-02T08:15:00+00:00",
+      "candidate_required_location": "Worldwide",
+      "salary": "$35,000 - $50,000",
+      "description": "<p>Support APIs, dashboards, and workflow automation.</p>"
+    },
+    {
+      "id": 72002,
+      "title": "Missing URL fixture",
+      "company_name": "Invalid"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "claim_id": "portfolio_nextjs",
+    "statement": "Built a portfolio using Next.js, React, TypeScript, and Tailwind CSS.",
+    "evidence_url": "https://github.com/SAIKO0000/Portfolio",
+    "scope": "Public portfolio repository",
+    "skills": ["next.js", "react", "typescript", "tailwind css"],
+    "verified": false
+  },
+  {
+    "claim_id": "relay_operations_workspace",
+    "statement": "Built Relay, a full-stack project and operations workspace using Next.js, React, TypeScript, Supabase, and Firebase.",
+    "evidence_url": "https://github.com/SAIKO0000/relay-project-management",
+    "scope": "Public project repository",
+    "skills": ["next.js", "react", "typescript", "supabase", "firebase", "operations dashboards"],
+    "verified": false
+  },
+  {
+    "claim_id": "accounting_modernization",
+    "statement": "Worked on an accounting-system modernization using C#, .NET, and PostgreSQL.",
+    "evidence_url": "https://github.com/SAIKO0000/accounting-system",
+    "scope": "Public project repository",
+    "skills": ["c#", ".net", "postgresql", "accounting systems"],
+    "verified": false
+  },
+  {
+    "claim_id": "resource_hive_booking",
+    "statement": "Built Resource Hive, a room-booking system using JavaScript, CSS, HTML, and PHP.",
+    "evidence_url": "https://github.com/SAIKO0000/Resource-Hive",
+    "scope": "Public project repository",
+    "skills": ["javascript", "php", "html", "css", "booking systems"],
+    "verified": false
+  },
+  {
+    "claim_id": "shoulder_dss_cv",
+    "statement": "Built a Frozen Shoulder decision-support project using applied computer vision concepts.",
+    "evidence_url": "https://markiguban.dev",
+    "scope": "Public portfolio entry; supporting artifact must be reviewed before activation",
+    "skills": ["computer vision", "opencv", "mediapipe", "decision support systems"],
+    "verified": false
+  }
+]

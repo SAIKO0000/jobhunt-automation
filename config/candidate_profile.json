@@ -1,0 +1,17 @@
+{
+  "target_seniority_levels": ["internship", "entry", "junior", "associate"],
+  "excluded_seniority_levels": [
+    "senior",
+    "staff",
+    "principal",
+    "lead",
+    "manager",
+    "director",
+    "executive"
+  ],
+  "maximum_verified_professional_experience_years": null,
+  "maximum_target_experience_years": 3,
+  "review_unspecified_seniority": true,
+  "allow_unpaid_roles": false,
+  "require_explicit_compensation": false
+}

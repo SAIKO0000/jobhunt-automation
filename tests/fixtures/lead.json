@@ -1,0 +1,13 @@
+{
+  "business_name": "Example Clinic",
+  "official_domain": "https://clinic.example.com",
+  "area": "Makati",
+  "industry": "Healthcare services",
+  "seeded_by": "Mark",
+  "verification_source_url": "https://databank.business.gov.ph/example-clinic",
+  "verified_at": "2026-09-02T08:00:00Z",
+  "observed_problem": "the public booking process appears to rely on manual form handoffs",
+  "evidence_url": "https://clinic.example.com/appointments",
+  "service_hypothesis": "a small approval-based booking and operations dashboard",
+  "lawful_basis_status": "Business data only"
+}

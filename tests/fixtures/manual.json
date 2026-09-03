@@ -1,0 +1,15 @@
+[
+  {
+    "source_record_id": "manual-1",
+    "source_url": "https://example.com/jobs/manual-1",
+    "apply_url": "https://example.com/jobs/manual-1/apply",
+    "company": "Manual Company",
+    "title": "Virtual Assistant - Technical Operations",
+    "location_text": "Remote - Philippines",
+    "country": "Philippines",
+    "work_arrangement": "remote",
+    "opportunity_type": "va_freelance",
+    "description_excerpt": "Short user-selected listing excerpt.",
+    "requirements": ["Python", "reporting", "project coordination"]
+  }
+]

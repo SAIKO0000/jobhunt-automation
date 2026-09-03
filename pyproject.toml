@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jobhunt-automation"
+version = "0.1.0"
+description = "Human-in-the-loop, compliance-first opportunity intelligence"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+authors = [{ name = "Mark Daniel Iguban" }]
+dependencies = [
+  "defusedxml>=0.7.1,<1",
+  "httpx>=0.28,<1",
+  "pydantic>=2.10,<3",
+  "tenacity>=9,<10",
+]
+
+[project.optional-dependencies]
+sheets = [
+  "google-api-python-client>=2.160,<3",
+  "google-auth>=2.38,<3",
+  "google-auth-oauthlib>=1.4,<2",
+  "keyring>=25.7,<26",
+]
+gemini = [
+  "google-genai>=2.21,<3",
+  "keyring>=25.7,<26",
+]
+dev = [
+  "mypy>=1.14,<2",
+  "pip-audit>=2.7,<3",
+  "pytest>=9.0.3,<10",
+  "pytest-cov>=6,<7",
+  "ruff>=0.9,<1",
+]
+
+[project.scripts]
+jobhunt = "jobhunt.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+jobhunt = ["py.typed"]
+
+[tool.pytest.ini_options]
+addopts = "-q --strict-markers --disable-warnings"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+exclude = [".cache", ".venv", "runtime"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "S", "RUF"]
+ignore = ["S101"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["jobhunt"]
+ignore_missing_imports = true

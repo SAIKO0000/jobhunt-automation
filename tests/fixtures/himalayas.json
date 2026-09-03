@@ -1,0 +1,32 @@
+{
+  "updatedAt": 1788393600000,
+  "nextCursor": "fixture-cursor-2",
+  "limit": 20,
+  "totalCount": 2,
+  "jobs": [
+    {
+      "title": "Junior Workflow Automation Developer",
+      "excerpt": "Build internal tools and integrations.",
+      "companyName": "Northstar Systems",
+      "companySlug": "northstar-systems",
+      "employmentType": "Full Time",
+      "minSalary": 36000,
+      "maxSalary": 48000,
+      "salaryPeriod": "annual",
+      "seniority": ["Entry-level"],
+      "currency": "USD",
+      "locationRestrictions": [
+        {"alpha2": "PH", "name": "Philippines", "slug": "philippines"}
+      ],
+      "timezoneRestrictions": ["UTC+8"],
+      "categories": ["Engineering", "Python"],
+      "parentCategories": ["Software Development"],
+      "description": "<p>Build <strong>Python</strong> workflow tools and dashboards.</p>",
+      "pubDate": 1788393600000,
+      "expiryDate": 1790985600000,
+      "applicationLink": "https://himalayas.app/companies/northstar-systems/jobs/junior-workflow-automation-developer",
+      "guid": "himalayas-fixture-1"
+    },
+    "malformed-record"
+  ]
+}

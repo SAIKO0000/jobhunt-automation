@@ -1,0 +1,28 @@
+{
+  "jobs": [
+    {
+      "id": 91001,
+      "url": "https://jobicy.com/jobs/91001-junior-full-stack-developer",
+      "jobSlug": "junior-full-stack-developer",
+      "jobTitle": "Junior Full Stack Developer",
+      "companyName": "Acme Remote",
+      "jobIndustry": ["Engineering", "Web & App Design"],
+      "jobType": ["full-time"],
+      "jobGeo": "Philippines",
+      "jobLevel": "Entry-level",
+      "jobExcerpt": "Maintain internal business applications.",
+      "jobDescription": "<p>Maintain React and Python business applications.</p>",
+      "pubDate": "2026-09-02T09:30:00+00:00",
+      "salaryMin": 45000,
+      "salaryMax": 60000,
+      "salaryCurrency": "USD",
+      "salaryPeriod": "yearly"
+    },
+    {
+      "id": 91002,
+      "url": "http://jobicy.com/jobs/insecure",
+      "jobTitle": "Unsafe URL fixture",
+      "companyName": "Invalid"
+    }
+  ]
+}

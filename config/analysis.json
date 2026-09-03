@@ -1,0 +1,17 @@
+{
+  "gemini": {
+    "enabled": false,
+    "model": "gemini-3.7-flash",
+    "privacy_acknowledged_at": null,
+    "max_rows_per_run": 20,
+    "max_rows_per_day": 40,
+    "timeout_seconds": 45
+  },
+  "ollama": {
+    "enabled": false,
+    "evaluation_approved": false,
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "base_url": "http://127.0.0.1:11434",
+    "timeout_seconds": 90
+  }
+}

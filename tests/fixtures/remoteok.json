@@ -1,0 +1,16 @@
+[
+  {"legal": "API metadata"},
+  {
+    "id": "remoteok-1",
+    "date": "2026-08-30T10:00:00Z",
+    "company": "Acme Systems",
+    "position": "Full Stack Automation Engineer",
+    "location": "Worldwide",
+    "tags": ["python", "typescript", "automation", "remote"],
+    "description": "<p>Build secure workflow dashboards with Python and TypeScript.</p>",
+    "url": "https://remoteok.com/remote-jobs/remoteok-1",
+    "apply_url": "https://remoteok.com/remote-jobs/remoteok-1?utm_source=test",
+    "salary_min": 60000,
+    "salary_max": 90000
+  }
+]

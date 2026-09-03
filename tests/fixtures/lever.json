@@ -1,0 +1,14 @@
+[
+  {
+    "id": "lever-1",
+    "text": "Automation Developer",
+    "categories": {
+      "location": "Philippines - Remote",
+      "commitment": "Full-time"
+    },
+    "hostedUrl": "https://jobs.lever.co/acme/lever-1",
+    "applyUrl": "https://jobs.lever.co/acme/lever-1/apply",
+    "descriptionPlain": "Integrate APIs using Python and TypeScript.",
+    "createdAt": 1788087600000
+  }
+]

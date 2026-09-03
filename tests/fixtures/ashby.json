@@ -1,0 +1,25 @@
+{
+  "jobs": [
+    {
+      "id": "ashby-1",
+      "title": "Technical Operations Engineer",
+      "location": "Manila, Philippines",
+      "workplaceType": "Hybrid",
+      "employmentType": "FullTime",
+      "descriptionPlain": "Build reporting automation with SQL and Next.js.",
+      "jobUrl": "https://jobs.ashbyhq.com/acme/ashby-1",
+      "applyUrl": "https://jobs.ashbyhq.com/acme/ashby-1/application",
+      "isListed": true,
+      "publishedAt": "2026-08-29T08:00:00Z"
+    },
+    {
+      "id": "ashby-hidden",
+      "title": "Hidden Role",
+      "location": "Remote",
+      "workplaceType": "Remote",
+      "jobUrl": "https://jobs.ashbyhq.com/acme/hidden",
+      "applyUrl": "https://jobs.ashbyhq.com/acme/hidden/application",
+      "isListed": false
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "verified_claims": [
+    {
+      "claim_id": "synthetic_workflow_evidence",
+      "statement": "Built a Python workflow dashboard with human approval controls.",
+      "evidence_url": "https://example.com/synthetic-evidence",
+      "scope": "Synthetic evaluation data only",
+      "skills": ["python", "workflow", "dashboard", "automation"],
+      "verified": true
+    }
+  ],
+  "cases": [
+    {"case_id":"01","title":"Python Workflow Developer","description_excerpt":"Build internal workflow dashboards in Python.","requirements":["python","workflow"],"expected_positive_fit":true},
+    {"case_id":"02","title":"Operations Dashboard Engineer","description_excerpt":"Create approval dashboards and automate reporting.","requirements":["dashboard","automation"],"expected_positive_fit":true},
+    {"case_id":"03","title":"Internal Tools Developer","description_excerpt":"Develop lightweight business tools with Python.","requirements":["python"],"expected_positive_fit":true},
+    {"case_id":"04","title":"Automation Specialist","description_excerpt":"Automate spreadsheet-heavy operations with human review.","requirements":["automation","workflow"],"expected_positive_fit":true},
+    {"case_id":"05","title":"Technical Operations Analyst","description_excerpt":"Maintain reporting workflows and dashboards.","requirements":["dashboard"],"expected_positive_fit":true},
+    {"case_id":"06","title":"Workflow Systems Assistant","description_excerpt":"Support internal tools and approval queues.","requirements":["workflow"],"expected_positive_fit":true},
+    {"case_id":"07","title":"Python Reporting Contractor","description_excerpt":"Build repeatable reporting utilities.","requirements":["python","automation"],"expected_positive_fit":true},
+    {"case_id":"08","title":"Business Systems Builder","description_excerpt":"Replace manual spreadsheets with a dashboard.","requirements":["dashboard","workflow"],"expected_positive_fit":true},
+    {"case_id":"09","title":"Human-in-the-loop Automation Developer","description_excerpt":"Create review-first automated workflows.","requirements":["automation"],"expected_positive_fit":true},
+    {"case_id":"10","title":"Data Workflow Assistant","description_excerpt":"Clean data and maintain Python workflows.","requirements":["python","workflow"],"expected_positive_fit":true},
+    {"case_id":"11","title":"Senior Kubernetes Platform Architect","description_excerpt":"Lead multi-region Kubernetes infrastructure.","requirements":["kubernetes","terraform"],"expected_positive_fit":false},
+    {"case_id":"12","title":"Licensed Philippine Attorney","description_excerpt":"Provide courtroom representation.","requirements":["law license"],"expected_positive_fit":false},
+    {"case_id":"13","title":"Cardiothoracic Surgeon","description_excerpt":"Perform specialist surgery.","requirements":["medical license"],"expected_positive_fit":false},
+    {"case_id":"14","title":"Principal SAP Basis Consultant","description_excerpt":"Administer enterprise SAP landscapes.","requirements":["sap basis"],"expected_positive_fit":false},
+    {"case_id":"15","title":"Mandarin Legal Translator","description_excerpt":"Translate certified legal documents.","requirements":["mandarin","certification"],"expected_positive_fit":false},
+    {"case_id":"16","title":"Embedded Firmware Engineer","description_excerpt":"Write safety-critical C firmware.","requirements":["embedded c","rtos"],"expected_positive_fit":false},
+    {"case_id":"17","title":"Enterprise Oracle DBA","description_excerpt":"Operate clustered Oracle databases.","requirements":["oracle rac"],"expected_positive_fit":false},
+    {"case_id":"18","title":"Licensed Civil Engineer","description_excerpt":"Sign structural engineering plans.","requirements":["civil engineering license"],"expected_positive_fit":false},
+    {"case_id":"19","title":"Senior iOS Graphics Engineer","description_excerpt":"Optimize Metal rendering pipelines.","requirements":["swift","metal"],"expected_positive_fit":false},
+    {"case_id":"20","title":"Airline Transport Pilot","description_excerpt":"Operate commercial passenger aircraft.","requirements":["atpl","flight hours"],"expected_positive_fit":false}
+  ]
+}
