@@ -214,13 +214,24 @@ def test_no_active_paid_or_hosted_runtime_paths() -> None:
         "g" + "cs",
         "n" + "8n",
     )
-    scanned = "\n".join(
-        path.read_text(encoding="utf-8", errors="ignore")
+    scanned_files = [
+        path
         for root in roots
         for path in root.rglob("*")
         if path.is_file()
-    ).casefold()
-    assert not any(value in scanned for value in forbidden)
+        and "__pycache__" not in path.parts
+        and not any(part.endswith(".egg-info") for part in path.parts)
+    ]
+    matches = {
+        value: [
+            path.as_posix()
+            for path in scanned_files
+            if value in path.read_text(encoding="utf-8", errors="ignore").casefold()
+        ]
+        for value in forbidden
+    }
+    matches = {value: paths for value, paths in matches.items() if paths}
+    assert not matches, f"Found retired runtime references: {matches}"
 
 
 def test_no_committed_secret_shapes() -> None:
