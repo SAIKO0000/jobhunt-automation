@@ -28,6 +28,7 @@ class WindowsCredentialStore:
     """Credential Locker access with an explicit, fail-closed Windows backend."""
 
     service_name = "jobhunt-automation"
+    backend_name: str
 
     def __init__(self) -> None:
         if sys.platform != "win32":
@@ -39,7 +40,7 @@ class WindowsCredentialStore:
             raise RuntimeError(
                 "Install the sheets or gemini extra to use secure credentials"
             ) from exc
-        backend = WinVaultKeyring()  # type: ignore[no-untyped-call]
+        backend = WinVaultKeyring()  # type: ignore[no-untyped-call, unused-ignore]
         if backend.priority <= 0:
             raise RuntimeError("The Windows Credential Manager backend is unavailable")
         keyring.set_keyring(backend)
