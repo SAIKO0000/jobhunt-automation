@@ -8,7 +8,10 @@ A zero-platform-cost, local Windows opportunity-intelligence pipeline. It collec
 approved public job feeds, applies transparent eligibility and fit rules, and updates a
 user-owned Google Sheets workbook. Applications and messages always remain manual.
 
-![Sanitized fixture view of the job-hunt dashboard](docs/assets/dashboard.png)
+![Actual Google Sheets dashboard from the private portfolio demo workbook](docs/assets/dashboard.png)
+
+_Actual Google Sheets interface. The private demo copy contains public job listings; browser,
+account, workbook-link, and personal workflow information are excluded from the capture._
 
 ## Why this exists
 
@@ -26,7 +29,10 @@ The result is intentionally local-first:
 - Local snapshots, leases, and pending-run files support conflict-safe recovery.
 - Optional Gemini/Ollama analysis is disabled by default and has no paid fallback.
 
-![Sanitized fixture view of the opportunities queue](docs/assets/opportunities.png)
+![Actual Google Sheets opportunities queue populated with public job listings](docs/assets/opportunities.png)
+
+_Public listing data is attributed in the workbook to Himalayas or Jobicy and retains its
+source link. Personal notes, contacts, application dates, and outcomes are not shown._
 
 ## Architecture
 
