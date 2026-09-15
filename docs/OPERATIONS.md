@@ -75,6 +75,15 @@ removal support `-WhatIf`; neither script is run automatically by repository set
 Scheduled output uses `--summary-only`, so logs contain run metadata and sanitized errors,
 not listing descriptions or credentials.
 
+Each scheduled live write also reviews existing `Inbox` rows from Himalayas and Jobicy.
+Seeing a record in the current successful API response confirms it is active. Absence from a
+filtered response is never treated as closure: the runtime sends an allowlisted `HEAD` request
+to at most ten old source URLs per run. A source expiry may archive a Himalayas row immediately;
+otherwise only two consecutive HTTP 404/410 observations archive it. Timeouts, DNS failures,
+redirects outside the source allowlist, rate limits, authorization failures, and 5xx responses
+are inconclusive and leave the opportunity in place. Archived rows retain all human fields in
+the hidden `Excluded` tab, and every observation is recorded in `System Events`.
+
 ## Provider behavior
 
 Gemini permits at most 20 rows per run and 40 per local calendar day. Ollama may be used only

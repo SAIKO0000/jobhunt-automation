@@ -87,10 +87,10 @@ a September 3, 2026 operational sample, it processed 119 listings from two sourc
 This demonstrates the purpose of the pipeline: reduce a large discovery batch to a small,
 explainable review queue while preserving audit and recovery information.
 
-The automated suite currently has 166 passing tests and 84.41% coverage. It exercises source
+The automated suite currently has 173 passing tests and 84.16% coverage. It exercises source
 parsing, host and response limits, formula-injection protection, qualification boundaries,
-deduplication, workbook migration, human-edit conflicts, pending-run replay, credential
-failures, and the no-outbound-action invariant.
+deduplication, conservative listing-availability checks, workbook migration, human-edit
+conflicts, pending-run replay, credential failures, and the no-outbound-action invariant.
 
 ## Limitations and next steps
 

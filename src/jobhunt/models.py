@@ -107,6 +107,13 @@ class ClosedReason(StrEnum):
     OTHER = "Other"
 
 
+class ListingAvailabilityStatus(StrEnum):
+    ACTIVE = "active"
+    UNAVAILABLE = "unavailable"
+    INCONCLUSIVE = "inconclusive"
+    EXPIRED = "expired"
+
+
 class FitBand(StrEnum):
     STRONG = "Strong Fit"
     REVIEW = "Review"
@@ -500,6 +507,24 @@ class Lead(StrictModel):
     updated_at: datetime = Field(default_factory=utc_now)
 
 
+class ListingAvailabilityUpdate(StrictModel):
+    record_id: str
+    status: ListingAvailabilityStatus
+    checked_at: datetime = Field(default_factory=utc_now)
+    reason: str = Field(max_length=300)
+    http_status: int | None = Field(default=None, ge=100, le=599)
+    archive: bool = False
+
+    @model_validator(mode="after")
+    def archive_requires_definitive_status(self) -> ListingAvailabilityUpdate:
+        if self.archive and self.status not in {
+            ListingAvailabilityStatus.UNAVAILABLE,
+            ListingAvailabilityStatus.EXPIRED,
+        }:
+            raise ValueError("Only unavailable or expired listings may be archived")
+        return self
+
+
 class RunResult(StrictModel):
     run_id: UUID = Field(default_factory=uuid4)
     image_digest: str = "local"
@@ -523,6 +548,10 @@ class RunResult(StrictModel):
     status: str = "running"
     errors: list[str] = Field(default_factory=list)
     checkpoints: dict[str, str] = Field(default_factory=dict)
+    availability_updates: list[ListingAvailabilityUpdate] = Field(
+        default_factory=list,
+        exclude=True,
+    )
 
 
 class WorkbookSnapshot(StrictModel):

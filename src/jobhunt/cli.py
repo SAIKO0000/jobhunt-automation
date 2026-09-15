@@ -318,7 +318,15 @@ def _replay_pending(args: argparse.Namespace) -> int:
     LocalSnapshotStore(runtime_dir / "snapshots").save(
         current, reason=f"pre-replay-{pending.run.run_id}"
     )
-    workbook.commit(pending.initial_snapshot, pending.opportunities, pending.run, pending.manifests)
+    replay_run = pending.run.model_copy(
+        update={"availability_updates": pending.availability_updates}
+    )
+    workbook.commit(
+        pending.initial_snapshot,
+        pending.opportunities,
+        replay_run,
+        pending.manifests,
+    )
     store.delete(args.run_id)
     print("Pending run committed")
     return 0

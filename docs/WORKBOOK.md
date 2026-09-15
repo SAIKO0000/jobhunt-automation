@@ -64,6 +64,11 @@ location or qualification failure wins, followed by manual review, then eligible
 protected `Excluded` tab and still indexed for deduplication. If later source facts change,
 the record can move between tables while preserving human-owned notes and workflow fields.
 
+Scheduled live runs also health-check existing Inbox listings. A confirmed source expiry or
+two consecutive 404/410 responses moves a stale listing to `Excluded`; it is never deleted.
+Ambiguous checks do nothing to the row. The hidden `System Events` tab records successful,
+inconclusive, unavailable, deferred, and archived observations for troubleshooting.
+
 ## Manual intake
 
 Use one row per listing from a manual-only platform. Required fields are Platform, Listing

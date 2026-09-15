@@ -4,9 +4,15 @@ import json
 import os
 from pathlib import Path
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
-from jobhunt.models import Opportunity, RunResult, SourceManifest, WorkbookSnapshot
+from jobhunt.models import (
+    ListingAvailabilityUpdate,
+    Opportunity,
+    RunResult,
+    SourceManifest,
+    WorkbookSnapshot,
+)
 
 
 class PendingRun(BaseModel):
@@ -16,6 +22,7 @@ class PendingRun(BaseModel):
     opportunities: list[Opportunity]
     run: RunResult
     manifests: list[SourceManifest]
+    availability_updates: list[ListingAvailabilityUpdate] = Field(default_factory=list)
 
 
 class PendingRunStore:

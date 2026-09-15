@@ -121,6 +121,34 @@ class SafeHttpClient:
         except json.JSONDecodeError as exc:
             raise UnsafeRemoteResponse("Source returned invalid JSON") from exc
 
+    @retry(
+        retry=retry_if_exception_type((httpx.TimeoutException, httpx.NetworkError)),
+        wait=wait_exponential_jitter(initial=0.5, max=5),
+        stop=stop_after_attempt(2),
+        reraise=True,
+    )
+    def head_status(self, url: str) -> int:
+        """Return a status without downloading a listing body.
+
+        Redirect targets remain subject to the adapter host allowlist. Callers
+        decide which statuses are definitive; this method deliberately does
+        not turn 4xx/5xx responses into exceptions.
+        """
+        current = validate_https_url(url, self.allowed_hosts)
+        for redirect_count in range(self.max_redirects + 1):
+            self._throttle()
+            response = self._client.request("HEAD", current)
+            if response.status_code in {301, 302, 303, 307, 308}:
+                if redirect_count >= self.max_redirects:
+                    raise UnsafeRemoteResponse("Source exceeded the redirect limit")
+                location = response.headers.get("location")
+                if not location:
+                    raise UnsafeRemoteResponse("Source returned a redirect without Location")
+                current = validate_https_url(urljoin(current, location), self.allowed_hosts)
+                continue
+            return response.status_code
+        raise UnsafeRemoteResponse("Source redirect handling failed")
+
 
 class _TextExtractor(HTMLParser):
     def __init__(self) -> None:

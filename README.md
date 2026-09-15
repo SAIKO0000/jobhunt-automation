@@ -58,7 +58,7 @@ A scheduled run on September 3, 2026 processed 119 records from two approved sou
 | Quarantined | 0 |
 
 This is an operational sample, not evidence of applications, interviews, or hiring outcomes.
-The current suite contains 166 tests with 84.41% coverage.
+The current suite contains 173 tests with 84.16% coverage.
 
 ## Safety boundary
 
@@ -75,6 +75,8 @@ Other fail-closed defaults include:
 - Uncertain seniority, location, or qualification evidence is sent to manual review.
 - Every profile claim is unverified, so AI analysis and drafting cannot use it.
 - A live run still requires the `--live` switch and an enabled, owner-approved manifest.
+- Scheduled live writes recheck existing Inbox links conservatively: rows are archived, never
+  deleted, only after a source expiry or two consecutive 404/410 observations.
 
 See [source and outreach compliance](docs/COMPLIANCE.md) for the complete policy boundary.
 

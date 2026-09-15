@@ -11,6 +11,7 @@ from jobhunt.adapters import adapter_registry
 from jobhunt.adapters.base import SourceAdapter
 from jobhunt.adapters.common import infer_country, infer_opportunity_type
 from jobhunt.ai import AIValidationError, AnalysisProvider, ProviderUnavailable, apply_ai_analysis
+from jobhunt.availability import review_inbox_availability
 from jobhunt.backup import SnapshotStore
 from jobhunt.budget import QuotaExceeded
 from jobhunt.config import (
@@ -119,6 +120,12 @@ class Pipeline:
                 result.sources_succeeded += 1
                 result.records_quarantined += len(manual_batch.warnings)
                 result.checkpoints[SourceKind.MANUAL.value] = manual_batch.fetched_at.isoformat()
+            if write and allow_live_sources:
+                result.availability_updates = review_inbox_availability(
+                    initial_snapshot,
+                    batches,
+                    manifests,
+                )
             records = [record for batch in batches for record in batch.records]
             result.records_fetched = len(records)
             opportunities = build_opportunities(records)
@@ -222,6 +229,7 @@ class Pipeline:
                             opportunities=processed,
                             run=result,
                             manifests=list(manifests.values()),
+                            availability_updates=result.availability_updates,
                         )
                     )
                 commit = self.workbook.commit(

@@ -17,6 +17,8 @@ from jobhunt.models import (
     CandidateProfile,
     EligibilityDecision,
     Lead,
+    ListingAvailabilityStatus,
+    ListingAvailabilityUpdate,
     Opportunity,
     ProcessingStatus,
     RetentionClass,
@@ -1061,6 +1063,16 @@ def build_commit_plan(
         )
         _plan_manual_intake_patch(plan, current, opportunity, destination_tab)
 
+    _plan_listing_availability_updates(
+        plan,
+        current,
+        initial_maps,
+        current_maps,
+        tab_next_rows,
+        run.availability_updates,
+        run,
+    )
+
     _plan_source_config_patches(plan, current, tab_next_rows, manifests, run)
     run_row = tab_next_rows["Run Log"]
     run.records_written = plan.records_written
@@ -1069,6 +1081,191 @@ def build_commit_plan(
         run.status = "partial"
     plan.patches.append(CellPatch("Run Log", run_row, run_result_values(run)))
     return plan
+
+
+def _plan_listing_availability_updates(
+    plan: CommitPlan,
+    current: WorkbookSnapshot,
+    initial_maps: dict[str, dict[str, tuple[int, list[Any]]]],
+    current_maps: dict[str, dict[str, tuple[int, list[Any]]]],
+    tab_next_rows: dict[str, int],
+    updates: list[ListingAvailabilityUpdate],
+    run: RunResult,
+) -> None:
+    event_types = {
+        ListingAvailabilityStatus.ACTIVE: "listing_available_observed",
+        ListingAvailabilityStatus.INCONCLUSIVE: "listing_check_inconclusive",
+        ListingAvailabilityStatus.UNAVAILABLE: "listing_unavailable_observed",
+        ListingAvailabilityStatus.EXPIRED: "listing_expired_archived",
+    }
+    for update in updates:
+        event_type = event_types[update.status]
+        if update.archive and update.status is ListingAvailabilityStatus.UNAVAILABLE:
+            event_type = "listing_inactive_archived"
+
+        if not update.archive:
+            _append_system_event(
+                plan,
+                tab_next_rows,
+                run,
+                record_id=update.record_id,
+                event_type=event_type,
+                severity=(
+                    "warning" if update.status is ListingAvailabilityStatus.INCONCLUSIVE else "info"
+                ),
+                observed_at=update.checked_at,
+                message=update.reason,
+            )
+            continue
+
+        active_entry = current_maps["Opportunities"].get(update.record_id)
+        if active_entry is None:
+            _append_system_event(
+                plan,
+                tab_next_rows,
+                run,
+                record_id=update.record_id,
+                event_type="listing_archive_deferred",
+                severity="warning",
+                observed_at=update.checked_at,
+                message="Listing archive deferred because the active row was not found",
+            )
+            continue
+        if update.record_id in current_maps["Excluded"]:
+            message = f"Record {update.record_id} already exists in the Excluded table"
+            plan.conflicts.append(message)
+            _append_system_event(
+                plan,
+                tab_next_rows,
+                run,
+                record_id=update.record_id,
+                event_type="listing_archive_deferred",
+                severity="error",
+                observed_at=update.checked_at,
+                message=message,
+            )
+            continue
+
+        row_index, current_row = active_entry
+        initial_row = initial_maps["Opportunities"].get(update.record_id, (row_index, current_row))[
+            1
+        ]
+        if user_fields_hash(initial_row) != user_fields_hash(current_row):
+            message = f"Human-owned cells changed during listing check for {update.record_id}"
+            plan.conflicts.append(message)
+            _append_system_event(
+                plan,
+                tab_next_rows,
+                run,
+                record_id=update.record_id,
+                event_type="listing_archive_deferred",
+                severity="warning",
+                observed_at=update.checked_at,
+                message=message,
+            )
+            continue
+
+        archived_row = [_value_at(current_row, index) for index in range(len(OPPORTUNITY_COLUMNS))]
+        archived_row[OPPORTUNITY_COLUMNS.index("Processing Status")] = (
+            ProcessingStatus.SKIPPED.value
+        )
+        blockers_index = OPPORTUNITY_COLUMNS.index("Blockers")
+        existing_blockers = str(_value_at(archived_row, blockers_index) or "")
+        availability_blocker = f"Listing unavailable: {update.reason}"
+        archived_row[blockers_index] = " | ".join(
+            value for value in (existing_blockers, availability_blocker) if value
+        )
+        archived_row[OPPORTUNITY_COLUMNS.index("Updated At")] = update.checked_at
+
+        destination_row = tab_next_rows["Excluded"]
+        tab_next_rows["Excluded"] += 1
+        plan.patches.append(
+            CellPatch(
+                "Excluded",
+                destination_row,
+                {index: value for index, value in enumerate(archived_row)},
+            )
+        )
+        plan.patches.append(
+            CellPatch(
+                "Opportunities",
+                row_index,
+                {index: "" for index in range(len(OPPORTUNITY_COLUMNS))},
+            )
+        )
+        _plan_dedupe_location_patch(
+            plan,
+            current,
+            update.record_id,
+            destination_row,
+        )
+        _append_system_event(
+            plan,
+            tab_next_rows,
+            run,
+            record_id=update.record_id,
+            event_type=event_type,
+            severity="info",
+            observed_at=update.checked_at,
+            message=update.reason,
+        )
+        plan.records_written += 1
+        run.records_excluded += 1
+
+
+def _append_system_event(
+    plan: CommitPlan,
+    tab_next_rows: dict[str, int],
+    run: RunResult,
+    *,
+    record_id: str,
+    event_type: str,
+    severity: str,
+    observed_at: datetime,
+    message: str,
+) -> None:
+    event_row = tab_next_rows["System Events"]
+    tab_next_rows["System Events"] += 1
+    plan.patches.append(
+        CellPatch(
+            "System Events",
+            event_row,
+            _row_values(
+                SYSTEM_EVENT_COLUMNS,
+                {
+                    "Event ID": str(uuid4()),
+                    "Run ID": str(run.run_id),
+                    "Observed At": observed_at,
+                    "Severity": severity,
+                    "Event Type": event_type,
+                    "Record ID": record_id,
+                    "Message": message,
+                },
+            ),
+        )
+    )
+
+
+def _plan_dedupe_location_patch(
+    plan: CommitPlan,
+    current: WorkbookSnapshot,
+    record_id: str,
+    destination_row: int,
+) -> None:
+    entry = _row_map(current.tabs.get("Dedupe Index", []), "Record ID").get(record_id)
+    if entry is None:
+        return
+    row_index, _ = entry
+    plan.patches.append(
+        CellPatch(
+            "Dedupe Index",
+            row_index,
+            {
+                DEDUPE_COLUMNS.index("Primary Tab"): "Excluded",
+                DEDUPE_COLUMNS.index("Primary Row"): destination_row + 1,
+            },
+        )
+    )
 
 
 def build_lead_commit_plan(

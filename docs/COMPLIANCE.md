@@ -23,6 +23,12 @@ worldwide availability and entry-level seniority. These are targeted API-side qu
 scraping. Jobicy uses documented APAC/worldwide geography and engineering-category filters.
 All queries run once daily and retain the original source URL and attribution.
 
+Availability checks are limited to previously collected Inbox records on the same approved
+source host. They use bodyless `HEAD` requests and never follow a redirect outside the adapter
+allowlist. Jobicy explicitly documents 404/410 checks for previously retrieved vacancies.
+Himalayas source expiry dates are also honored. Missing records in targeted search results,
+transient failures, and non-definitive HTTP statuses are not interpreted as closed listings.
+
 Primary references:
 
 - [Remote OK API](https://remoteok.com/api)

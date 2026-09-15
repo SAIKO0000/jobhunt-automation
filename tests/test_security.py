@@ -48,6 +48,24 @@ def test_response_limit_is_enforced() -> None:
             client.get_bytes("https://remoteok.com/api")
 
 
+def test_head_status_follows_only_allowlisted_redirects_without_getting_body() -> None:
+    methods: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        methods.append(request.method)
+        if request.url.path == "/old":
+            return httpx.Response(302, headers={"location": "/closed"})
+        return httpx.Response(410, content=b"body must not be consumed")
+
+    with SafeHttpClient(
+        allowed_hosts={"jobicy.com"},
+        max_response_bytes=100,
+        transport=httpx.MockTransport(handler),
+    ) as client:
+        assert client.head_status("https://jobicy.com/old") == 410
+    assert methods == ["HEAD", "HEAD"]
+
+
 @pytest.mark.parametrize("value", ["=IMPORTXML(A1)", "+cmd", "-1+2", "@SUM(A1:A2)"])
 def test_sheet_formula_inputs_are_neutralized(value: str) -> None:
     assert sanitize_sheet_value(value).startswith("'")
