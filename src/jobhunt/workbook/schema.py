@@ -579,7 +579,7 @@ def dashboard_values(*, opportunities_sheet_id: int = 0) -> list[list[str]]:
         ["Local assistant only — no automatic applications or messages."],
         [],
         [
-            "Last Successful Run",
+            "Last Success (Manila)",
             (
                 f"=IFERROR(MAX(FILTER('Run Log'!{run_finished}:{run_finished},"
                 f'\'Run Log\'!{run_status}:{run_status}="success")),"Never")'
@@ -590,7 +590,7 @@ def dashboard_values(*, opportunities_sheet_id: int = 0) -> list[list[str]]:
             (
                 f"=IFERROR(IF(LOOKUP(2,1/('Run Log'!{run_status}2:{run_status}<>\"\"),"
                 f'\'Run Log\'!{run_status}2:{run_status})<>"success","ERROR",'
-                'IF(B4="Never","NOT STARTED",IF(NOW()-B4>0.75,"STALE","OK"))),'
+                'IF(B4="Never","NOT STARTED",IF(NOW()-B4>30/24,"STALE","OK"))),'
                 '"NOT STARTED")'
             ),
         ],

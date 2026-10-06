@@ -5,7 +5,7 @@ import json
 import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, cast
 from uuid import uuid4
@@ -814,12 +814,13 @@ class GoogleSheetsWorkbook(WorkbookGateway):
 
     def _metadata(self) -> dict[str, Any]:
         try:
-            return cast(
+            metadata = cast(
                 dict[str, Any],
                 self._service.spreadsheets()
                 .get(
                     spreadsheetId=self.spreadsheet_id,
                     fields=(
+                        "properties(timeZone),"
                         "sheets(properties,charts(chartId,spec.title),filterViews.filterViewId,"
                         "protectedRanges(protectedRangeId,range,description,warningOnly,"
                         "unprotectedRanges),bandedRanges(bandedRangeId,range),"
@@ -831,6 +832,13 @@ class GoogleSheetsWorkbook(WorkbookGateway):
         except Exception as exc:
             message = _sanitized_google_error("Google Sheets metadata request failed", exc)
             raise GoogleSheetsError(message) from exc
+        actual_time_zone = metadata.get("properties", {}).get("timeZone")
+        if actual_time_zone != "Asia/Manila":
+            raise WorkbookConflict(
+                "Google Sheets workbook time zone must be Asia/Manila; "
+                f"found {actual_time_zone or 'missing'}"
+            )
+        return metadata
 
     def _read_sheet_values(
         self,
@@ -2446,7 +2454,10 @@ def _user_entered_value(value: Any, trusted_formulas: bool) -> dict[str, Any]:
     if isinstance(value, (int, float)):
         return {"numberValue": value}
     if isinstance(value, datetime):
-        normalized = value.astimezone(UTC).replace(tzinfo=None) if value.tzinfo else value
+        # Sheets serials are local wall-clock values in the workbook's Asia/Manila time zone.
+        # Keep domain timestamps in UTC; convert only at this presentation boundary.
+        manila = timezone(timedelta(hours=8))
+        normalized = value.astimezone(manila).replace(tzinfo=None) if value.tzinfo else value
         sheets_epoch = datetime(1899, 12, 30)
         return {"numberValue": (normalized - sheets_epoch).total_seconds() / 86_400}
     if isinstance(value, date):
@@ -2567,6 +2578,28 @@ def _formatting_requests(
                 }
             }
         )
+        if title == "Run Log":
+            requests.append(
+                {
+                    "repeatCell": {
+                        "range": {
+                            "sheetId": sheet_ids[title],
+                            "startRowIndex": 1,
+                            "startColumnIndex": 2,
+                            "endColumnIndex": 4,
+                        },
+                        "cell": {
+                            "userEnteredFormat": {
+                                "numberFormat": {
+                                    "type": "DATE_TIME",
+                                    "pattern": "yyyy-mm-dd hh:mm",
+                                }
+                            }
+                        },
+                        "fields": "userEnteredFormat.numberFormat",
+                    }
+                }
+            )
     requests.extend(_opportunity_guardrail_requests(sheet_ids, created_titles, sheets))
     requests.extend(_manual_intake_guardrail_requests(sheet_ids, created_titles))
     if "Manual Intake" in created_titles and "Manual Intake" in sheet_ids:

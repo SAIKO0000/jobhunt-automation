@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
@@ -23,8 +24,10 @@ from jobhunt.workbook.gateway import (
     WorkbookConflict,
     _collapsed_column_group_requests,
     _dashboard_chart_requests,
+    _formatting_requests,
     _presentation_cleanup_requests,
     _sanitized_google_error,
+    _user_entered_value,
     build_v3_migration,
     run_is_logged,
     user_fields_hash,
@@ -394,6 +397,9 @@ def test_v32_dashboard_is_compact_and_complete() -> None:
     assert rows[0] == ["JOB HUNT CONTROL CENTER"]
     assert "NOT STARTED" in rows[4][1]
     assert "STALE" in rows[4][1]
+    assert rows[3][0] == "Last Success (Manila)"
+    assert "NOW()-B4>30/24" in rows[4][1]
+    assert '"ERROR"' in rows[4][1]
     for title in (
         "Technical",
         "VA & Freelance",
@@ -418,6 +424,41 @@ def test_v32_dashboard_is_compact_and_complete() -> None:
     source = pipeline_domain["domain"]["sourceRange"]["sources"][0]
     assert source["startRowIndex"] == 59
     assert source["endRowIndex"] == 68
+
+
+@pytest.mark.parametrize(
+    ("latest_status", "last_success_age_hours", "expected"),
+    [
+        ("success", 1.0, "OK"),
+        ("success", 24.0, "OK"),
+        ("success", 30.0, "OK"),
+        ("success", 30.01, "STALE"),
+        ("error", 1.0, "ERROR"),
+        (None, None, "NOT STARTED"),
+    ],
+)
+def test_dashboard_run_health_branches_and_30_hour_boundary(
+    latest_status: str | None, last_success_age_hours: float | None, expected: str
+) -> None:
+    formula = dashboard_values()[4][1]
+    assert 'IF(B4="Never","NOT STARTED"' in formula
+    assert '<>"success","ERROR"' in formula
+    assert formula.endswith(',"NOT STARTED")')
+    threshold = re.search(r"NOW\(\)-B4>(\d+)/(\d+)", formula)
+    assert threshold is not None
+    stale_after_hours = int(threshold.group(1)) / int(threshold.group(2)) * 24
+    assert stale_after_hours == 30
+
+    # Mirror the formula's branches using its actual threshold, including the strict > boundary.
+    if latest_status is None:
+        result = "NOT STARTED"
+    elif latest_status != "success":
+        result = "ERROR"
+    elif last_success_age_hours is None:
+        result = "NOT STARTED"
+    else:
+        result = "STALE" if last_success_age_hours > stale_after_hours else "OK"
+    assert result == expected
 
 
 def test_v30_to_v32_migration_reorders_without_losing_values() -> None:
@@ -1015,9 +1056,9 @@ def test_google_metadata_requests_only_valid_sheet_fields() -> None:
 
     class Request:
         @staticmethod
-        def execute(**kwargs: object) -> dict[str, list[object]]:
+        def execute(**kwargs: object) -> dict[str, object]:
             observed["execute"] = kwargs
-            return {"sheets": []}
+            return {"properties": {"timeZone": "Asia/Manila"}, "sheets": []}
 
     class Spreadsheets:
         def get(self, **kwargs: object) -> Request:
@@ -1030,8 +1071,9 @@ def test_google_metadata_requests_only_valid_sheet_fields() -> None:
             return Spreadsheets()
 
     workbook = GoogleSheetsWorkbook("test-sheet", object(), service=Service())
-    assert workbook._metadata() == {"sheets": []}
+    assert workbook._metadata() == {"properties": {"timeZone": "Asia/Manila"}, "sheets": []}
     fields = str(observed["fields"])
+    assert "properties(timeZone)" in fields
     assert "dimensionGroups" not in fields
     assert "columnGroups(range,depth,collapsed)" in fields
     assert "filterViews.filterViewId" in fields
@@ -1039,6 +1081,54 @@ def test_google_metadata_requests_only_valid_sheet_fields() -> None:
     assert "unprotectedRanges" in fields
     assert "conditionalFormats" in fields
     assert observed["execute"] == {"num_retries": GOOGLE_READ_RETRIES}
+
+
+@pytest.mark.parametrize("time_zone", ["UTC", "America/New_York", None])
+def test_google_metadata_rejects_wrong_or_missing_time_zone(time_zone: str | None) -> None:
+    class Request:
+        @staticmethod
+        def execute(**_kwargs: object) -> dict[str, object]:
+            return {"properties": {"timeZone": time_zone}, "sheets": []}
+
+    class Spreadsheets:
+        @staticmethod
+        def get(**_kwargs: object) -> Request:
+            return Request()
+
+    class Service:
+        @staticmethod
+        def spreadsheets() -> Spreadsheets:
+            return Spreadsheets()
+
+    workbook = GoogleSheetsWorkbook("test-sheet", object(), service=Service())
+    with pytest.raises(WorkbookConflict, match="time zone must be Asia/Manila"):
+        workbook._metadata()
+
+
+def test_sheets_serial_converts_aware_utc_across_manila_midnight() -> None:
+    utc_value = datetime(2026, 10, 4, 23, 20, 29, tzinfo=UTC)
+    manila_wall_time = datetime(2026, 10, 5, 7, 20, 29)
+    expected = (manila_wall_time - datetime(1899, 12, 30)).total_seconds() / 86_400
+    assert _user_entered_value(utc_value, False) == {"numberValue": expected}
+    assert _user_entered_value(manila_wall_time, False) == {"numberValue": expected}
+    assert _user_entered_value(date(2026, 10, 5), False) == {
+        "numberValue": float((date(2026, 10, 5) - date(1899, 12, 30)).days)
+    }
+
+
+def test_new_run_log_formats_date_time_columns_without_touching_values() -> None:
+    sheet_ids = {"Run Log": 8}
+    requests = _formatting_requests(sheet_ids, {"Run Log"}, {})
+    date_formats = [
+        request["repeatCell"]
+        for request in requests
+        if "repeatCell" in request
+        and request["repeatCell"].get("fields") == "userEnteredFormat.numberFormat"
+    ]
+    assert len(date_formats) == 1
+    assert date_formats[0]["range"]["startColumnIndex"] == 2
+    assert date_formats[0]["range"]["endColumnIndex"] == 4
+    assert date_formats[0]["cell"]["userEnteredFormat"]["numberFormat"]["type"] == "DATE_TIME"
 
 
 def test_opportunity_grouping_is_single_idempotent_and_conflict_safe() -> None:

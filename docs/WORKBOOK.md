@@ -33,6 +33,12 @@ machine-managed rows.
 validations, protected edit zones, formatting, saved views, collapsed detail groups,
 dashboard formulas, and two charts. It does not create the spreadsheet itself.
 
+The Google workbook must use the `Asia/Manila` time zone. UTC timestamps remain UTC in
+internal logs and are converted to Manila wall-clock time when written as Sheets date-time
+serials. The dashboard marks a successful daily run stale after 30 hours, allowing six hours
+past the next expected daily run before showing the warning. A latest non-successful run
+still displays `ERROR` immediately.
+
 ## Daily queue
 
 The first 17 columns are visible by default:
