@@ -73,10 +73,11 @@ Other fail-closed defaults include:
 - Explicit senior-through-executive roles, applicant payments, unpaid work, and requirements
   above the configured three-year search cap are excluded from the daily queue.
 - Uncertain seniority, location, or qualification evidence is sent to manual review.
-- Every profile claim is unverified, so AI analysis and drafting cannot use it.
+- Five profile claims are owner-verified. AI providers are still disabled by default.
 - A live run still requires the `--live` switch and an enabled, owner-approved manifest.
-- Scheduled live writes recheck existing Inbox links conservatively: rows are archived, never
-  deleted, only after a source expiry or two consecutive 404/410 observations.
+- Scheduled live writes recheck existing Inbox links conservatively. Himalayas uses its
+  public exact-job tool; Jobicy uses source URL status. Rows are archived, never deleted,
+  only after source expiry or confirmed unavailability.
 
 See [source and outreach compliance](docs/COMPLIANCE.md) for the complete policy boundary.
 

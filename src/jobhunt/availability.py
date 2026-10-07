@@ -5,6 +5,11 @@ from contextlib import ExitStack
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
+from jobhunt.himalayas_availability import (
+    ExactJobCheck,
+    ExactJobStatus,
+    HimalayasExactVerifier,
+)
 from jobhunt.models import (
     FetchBatch,
     ListingAvailabilityStatus,
@@ -24,7 +29,10 @@ _AVAILABILITY_EVENT_TYPES = {
     "listing_unavailable_observed",
     "listing_inactive_archived",
     "listing_expired_archived",
+    "himalayas_exact_not_found_observed",
+    "himalayas_exact_not_found_archived",
 }
+_MIN_CONFIRMATION_INTERVAL = timedelta(hours=20)
 
 
 def review_inbox_availability(
@@ -35,13 +43,14 @@ def review_inbox_availability(
     now: datetime | None = None,
     max_probes: int = MAX_LISTING_PROBES_PER_RUN,
     probe: Callable[[str, SourceManifest], int] | None = None,
+    exact_probe: Callable[[str, SourceManifest], ExactJobCheck] | None = None,
+    run_id: str = "",
 ) -> list[ListingAvailabilityUpdate]:
     """Plan conservative availability updates for existing Inbox listings.
 
     A filtered API response is never treated as proof that a listing closed.
-    Direct checks are limited to source-owned, allowlisted URLs. A 404/410 is
-    archived only after two consecutive observations; a source-provided
-    Himalayas expiry is definitive immediately.
+    Himalayas uses its public exact-job tool, never job-page HEAD requests.
+    Two independent negative exact checks are required before archiving.
     """
     observed_at = (now or datetime.now(UTC)).astimezone(UTC)
     successful_sources = {batch.source for batch in batches}
@@ -66,7 +75,7 @@ def review_inbox_availability(
         return []
 
     updates: list[ListingAvailabilityUpdate] = []
-    candidates: list[tuple[str, str, SourceManifest, str | None, datetime]] = []
+    candidates: list[tuple[str, str, SourceManifest, tuple[str, datetime, str] | None]] = []
     for row in rows[1:]:
         if _cell(row, "Pipeline Stage") != "Inbox":
             continue
@@ -80,19 +89,6 @@ def review_inbox_availability(
             or manifest.adapter_id not in _SUPPORTED_DIRECT_CHECKS
             or manifest.adapter_id not in successful_sources
         ):
-            continue
-
-        if source_record_id in current_ids.get(manifest.adapter_id, set()):
-            previous_observation = latest_events.get(record_id)
-            if previous_observation and previous_observation[0] == "listing_unavailable_observed":
-                updates.append(
-                    ListingAvailabilityUpdate(
-                        record_id=record_id,
-                        status=ListingAvailabilityStatus.ACTIVE,
-                        checked_at=observed_at,
-                        reason="Listing appeared in the current successful source response",
-                    )
-                )
             continue
 
         source_deadline = _as_datetime(_cell(row, "Source Deadline"))
@@ -112,60 +108,152 @@ def review_inbox_availability(
             )
             continue
 
+        if manifest.adapter_id is SourceKind.JOBICY and source_record_id in current_ids.get(
+            manifest.adapter_id, set()
+        ):
+            previous_observation = latest_events.get(record_id)
+            if previous_observation and previous_observation[0] == "listing_unavailable_observed":
+                updates.append(
+                    ListingAvailabilityUpdate(
+                        record_id=record_id,
+                        status=ListingAvailabilityStatus.ACTIVE,
+                        checked_at=observed_at,
+                        reason="Listing appeared in the current successful source response",
+                    )
+                )
+            continue
+
+        previous = latest_events.get(record_id)
+        if (
+            manifest.adapter_id is SourceKind.HIMALAYAS
+            and previous is not None
+            and previous[0] == "himalayas_exact_not_found_observed"
+            and observed_at - previous[1] < _MIN_CONFIRMATION_INTERVAL
+        ):
+            # A same-day repeat cannot confirm closure; keep the original
+            # observation eligible for the next scheduled run.
+            continue
+
         candidates.append(
             (
                 record_id,
                 str(_cell(row, "Source URL") or ""),
                 manifest,
-                latest_events.get(record_id, (None, datetime.min.replace(tzinfo=UTC)))[0],
-                latest_events.get(record_id, (None, datetime.min.replace(tzinfo=UTC)))[1],
+                previous,
             )
         )
 
-    candidates.sort(key=lambda candidate: candidate[4])
-
-    if probe is not None:
-        for record_id, url, manifest, prior_event_type, _ in candidates[:max_probes]:
-            updates.append(
-                _probe_update(
-                    record_id,
-                    url,
-                    manifest,
-                    prior_event_type,
-                    observed_at,
-                    probe,
-                )
-            )
-        return updates
+    candidates.sort(
+        key=lambda candidate: (
+            0
+            if candidate[2].adapter_id is SourceKind.HIMALAYAS
+            and candidate[3] is not None
+            and candidate[3][0] == "himalayas_exact_not_found_observed"
+            else 1,
+            candidate[3][1] if candidate[3] else datetime.min.replace(tzinfo=UTC),
+        )
+    )
 
     with ExitStack() as stack:
-        clients = {
-            source: stack.enter_context(
+        clients = {}
+        if probe is None and any(
+            candidate[2].adapter_id is SourceKind.JOBICY for candidate in candidates[:max_probes]
+        ):
+            clients[SourceKind.JOBICY] = stack.enter_context(
                 SafeHttpClient(
-                    allowed_hosts=set(manifests[source].allowed_hosts),
+                    allowed_hosts=set(manifests[SourceKind.JOBICY].allowed_hosts),
                     max_response_bytes=1_024,
                     timeout_seconds=15,
-                    requests_per_minute=manifests[source].rate_limit_per_minute,
+                    requests_per_minute=manifests[SourceKind.JOBICY].rate_limit_per_minute,
                 )
             )
-            for source in {candidate[2].adapter_id for candidate in candidates[:max_probes]}
-        }
+        verifier = None
+        if exact_probe is None and any(
+            candidate[2].adapter_id is SourceKind.HIMALAYAS for candidate in candidates[:max_probes]
+        ):
+            endpoint = manifests[SourceKind.HIMALAYAS].availability_endpoint
+            if endpoint:
+                verifier = stack.enter_context(
+                    HimalayasExactVerifier(
+                        endpoint=endpoint,
+                        requests_per_minute=min(
+                            4, manifests[SourceKind.HIMALAYAS].rate_limit_per_minute
+                        ),
+                    )
+                )
 
         def safe_probe(url: str, manifest: SourceManifest) -> int:
             return clients[manifest.adapter_id].head_status(url)
 
-        for record_id, url, manifest, prior_event_type, _ in candidates[:max_probes]:
-            updates.append(
-                _probe_update(
-                    record_id,
-                    url,
-                    manifest,
-                    prior_event_type,
-                    observed_at,
-                    safe_probe,
+        def safe_exact_probe(url: str, _manifest: SourceManifest) -> ExactJobCheck:
+            if verifier is None:
+                return ExactJobCheck(ExactJobStatus.INCONCLUSIVE, "Exact-job verifier is disabled")
+            return verifier.check(url)
+
+        for record_id, url, manifest, previous in candidates[:max_probes]:
+            if manifest.adapter_id is SourceKind.HIMALAYAS:
+                updates.append(
+                    _exact_update(
+                        record_id,
+                        url,
+                        manifest,
+                        previous,
+                        observed_at,
+                        run_id,
+                        exact_probe or safe_exact_probe,
+                    )
                 )
-            )
+            else:
+                updates.append(
+                    _probe_update(
+                        record_id,
+                        url,
+                        manifest,
+                        previous[0] if previous else None,
+                        observed_at,
+                        probe or safe_probe,
+                    )
+                )
     return updates
+
+
+def _exact_update(
+    record_id: str,
+    url: str,
+    manifest: SourceManifest,
+    previous: tuple[str, datetime, str] | None,
+    checked_at: datetime,
+    run_id: str,
+    probe: Callable[[str, SourceManifest], ExactJobCheck],
+) -> ListingAvailabilityUpdate:
+    try:
+        result = probe(url, manifest)
+    except Exception as exc:
+        result = ExactJobCheck(
+            ExactJobStatus.INCONCLUSIVE, f"Exact-job check failed ({exc.__class__.__name__})"
+        )
+    status = {
+        ExactJobStatus.ACTIVE: ListingAvailabilityStatus.ACTIVE,
+        ExactJobStatus.NOT_FOUND: ListingAvailabilityStatus.UNAVAILABLE,
+        ExactJobStatus.INCONCLUSIVE: ListingAvailabilityStatus.INCONCLUSIVE,
+    }[result.status]
+    archive = bool(
+        result.status is ExactJobStatus.NOT_FOUND
+        and previous is not None
+        and previous[0] == "himalayas_exact_not_found_observed"
+        and previous[2]
+        and run_id
+        and previous[2] != run_id
+        and checked_at - previous[1] >= _MIN_CONFIRMATION_INTERVAL
+    )
+    return ListingAvailabilityUpdate(
+        record_id=record_id,
+        status=status,
+        checked_at=checked_at,
+        reason=result.reason,
+        evidence_kind="himalayas_exact",
+        archive=archive,
+    )
 
 
 def _probe_update(
@@ -212,7 +300,7 @@ def _probe_update(
     )
 
 
-def _latest_availability_events(snapshot: WorkbookSnapshot) -> dict[str, tuple[str, datetime]]:
+def _latest_availability_events(snapshot: WorkbookSnapshot) -> dict[str, tuple[str, datetime, str]]:
     rows = snapshot.tabs.get("System Events", [])
     if not rows:
         return {}
@@ -222,7 +310,8 @@ def _latest_availability_events(snapshot: WorkbookSnapshot) -> dict[str, tuple[s
     record_index = header.index("Record ID")
     type_index = header.index("Event Type")
     observed_index = header.index("Observed At")
-    latest: dict[str, tuple[str, datetime]] = {}
+    run_index = header.index("Run ID")
+    latest: dict[str, tuple[str, datetime, str]] = {}
     for row in rows[1:]:
         record_id = str(row[record_index]) if len(row) > record_index else ""
         event_type = str(row[type_index]) if len(row) > type_index else ""
@@ -231,6 +320,7 @@ def _latest_availability_events(snapshot: WorkbookSnapshot) -> dict[str, tuple[s
             latest[record_id] = (
                 event_type,
                 observed_at or datetime.min.replace(tzinfo=UTC),
+                str(row[run_index]) if len(row) > run_index else "",
             )
     return latest
 

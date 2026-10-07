@@ -945,8 +945,13 @@ def build_commit_plan(
     current_maps = {
         tab: _row_map(current.tabs.get(tab, []), "Record ID") for tab in opportunity_tabs
     }
+    archiving_ids = {update.record_id for update in run.availability_updates if update.archive}
     for opportunity in opportunities:
         record_id = str(opportunity.record_id)
+        if record_id in archiving_ids:
+            # Availability archiving owns this row for the run. Never plan a
+            # second source-driven move or overwrite against the same identity.
+            continue
         destination_tab = (
             "Excluded"
             if opportunity.processing_status is ProcessingStatus.SKIPPED
@@ -976,6 +981,13 @@ def build_commit_plan(
                     ),
                 )
             )
+            continue
+
+        archived_entry = current_maps["Excluded"].get(record_id)
+        if archived_entry is not None and "Listing unavailable:" in str(
+            _current_value(archived_entry[1], "Blockers") or ""
+        ):
+            # A cached source result must not silently resurrect an unavailable listing.
             continue
 
         source_tab = existing[0] if existing else None
@@ -1110,6 +1122,14 @@ def _plan_listing_availability_updates(
         event_type = event_types[update.status]
         if update.archive and update.status is ListingAvailabilityStatus.UNAVAILABLE:
             event_type = "listing_inactive_archived"
+        if update.evidence_kind == "himalayas_exact" and (
+            update.status is ListingAvailabilityStatus.UNAVAILABLE
+        ):
+            event_type = (
+                "himalayas_exact_not_found_archived"
+                if update.archive
+                else "himalayas_exact_not_found_observed"
+            )
 
         if not update.archive:
             _append_system_event(
@@ -1243,7 +1263,7 @@ def _append_system_event(
                 {
                     "Event ID": str(uuid4()),
                     "Run ID": str(run.run_id),
-                    "Observed At": observed_at,
+                    "Observed At": observed_at.astimezone(UTC).isoformat(),
                     "Severity": severity,
                     "Event Type": event_type,
                     "Record ID": record_id,
@@ -3205,6 +3225,23 @@ def _opportunity_width_requests(sheet_id: int) -> list[dict[str, Any]]:
         }
         for index, name in enumerate(OPPORTUNITY_COLUMNS)
     ]
+    # Cost remains in the machine-owned record for the zero-budget gate, but
+    # does not need to occupy space in the everyday review queue.
+    cost_index = OPPORTUNITY_COLUMNS.index("Application Cost")
+    requests.append(
+        {
+            "updateDimensionProperties": {
+                "range": {
+                    "sheetId": sheet_id,
+                    "dimension": "COLUMNS",
+                    "startIndex": cost_index,
+                    "endIndex": cost_index + 1,
+                },
+                "properties": {"hiddenByUser": True},
+                "fields": "hiddenByUser",
+            }
+        }
+    )
     requests.extend(
         [
             {

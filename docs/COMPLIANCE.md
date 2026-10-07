@@ -23,11 +23,15 @@ worldwide availability and entry-level seniority. These are targeted API-side qu
 scraping. Jobicy uses documented APAC/worldwide geography and engineering-category filters.
 All queries run once daily and retain the original source URL and attribution.
 
-Availability checks are limited to previously collected Inbox records on the same approved
-source host. They use bodyless `HEAD` requests and never follow a redirect outside the adapter
-allowlist. Jobicy explicitly documents 404/410 checks for previously retrieved vacancies.
-Himalayas source expiry dates are also honored. Missing records in targeted search results,
-transient failures, and non-definitive HTTP statuses are not interpreted as closed listings.
+Availability checks are limited to previously collected Inbox records. Himalayas uses only its
+public read-only `get_job_details` tool, with slugs from an approved source URL: at most ten
+checks per run, rate-limited to four requests per minute. Its job pages are not probed.
+An exact "Job not found" must repeat in a different run at least 20 hours later before archive;
+any intervening positive or inconclusive result resets confirmation. Jobicy continues to use
+bodyless `HEAD` requests against allowed source hosts and consecutive 404/410 results.
+Himalayas source expiry dates are also honored. A cached search result cannot restore a row
+archived for unavailability. Missing records in targeted search results, transient failures,
+and non-definitive responses are not interpreted as closed listings.
 
 Primary references:
 
@@ -36,6 +40,7 @@ Primary references:
 - [We Work Remotely RSS policy](https://weworkremotely.com/remote-job-rss-feed)
 - [We Work Remotely job-seeker pricing](https://weworkremotely.com/frequently-asked-questions)
 - [Himalayas Remote Jobs API](https://himalayas.app/api)
+- [Himalayas public remote-jobs MCP tool](https://himalayas.app/docs/remote-jobs-mcp)
 - [Himalayas job-seeker cost policy](https://himalayas.app/docs/what-is-himalayas)
 - [Jobicy Remote Jobs API](https://jobicy.com/jobs-rss-feed)
 - [Jobicy job-seeker site](https://jobicy.com/)

@@ -1,8 +1,10 @@
 # Profile claim governance
 
-`config/profile_claims.json` is the only profile evidence inventory. Every checked-in claim
-ships with `verified=false`; unverified claims score zero and cannot be sent to a provider or
-used in a draft.
+`config/profile_claims.json` is the only profile evidence inventory. The owner has attested
+to all five checked-in statements. The Resource Hive claim was corrected to describe the
+Firebase-backed room-reservation system shown in the public portfolio; unsupported PHP,
+HTML, and CSS skill tags were removed. Unverified future claims score zero and cannot be
+sent to a provider or used in a draft. Owner attestation is not independent verification.
 
 Before verifying a claim, the owner must inspect its supporting artifact, confirm the exact
 statement and scope, remove private/contact information, and record only a stable claim ID,

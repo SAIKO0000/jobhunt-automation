@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Any
+from typing import Any, Literal
 from urllib.parse import urlsplit
 from uuid import UUID, uuid4
 
@@ -168,6 +168,7 @@ class SourceManifest(StrictModel):
     enabled: bool = False
     owner_approved: bool = False
     endpoint: str | None = None
+    availability_endpoint: str | None = None
     additional_endpoints: list[str] = Field(default_factory=list, max_length=10)
     allowed_hosts: list[str] = Field(default_factory=list)
     terms_url: HttpUrl | None = None
@@ -204,6 +205,11 @@ class SourceManifest(StrictModel):
                 raise ValueError("source endpoints may not contain credentials or custom ports")
             if not any(host == item or host.endswith(f".{item}") for item in allowed):
                 raise ValueError(f"source endpoint host {host!r} is not allowed")
+        if self.availability_endpoint is not None and (
+            self.adapter_id is not SourceKind.HIMALAYAS
+            or self.availability_endpoint != "https://mcp.himalayas.app/mcp"
+        ):
+            raise ValueError("unsupported availability endpoint")
         return self
 
     @property
@@ -513,6 +519,7 @@ class ListingAvailabilityUpdate(StrictModel):
     checked_at: datetime = Field(default_factory=utc_now)
     reason: str = Field(max_length=300)
     http_status: int | None = Field(default=None, ge=100, le=599)
+    evidence_kind: Literal["http", "himalayas_exact"] = "http"
     archive: bool = False
 
     @model_validator(mode="after")

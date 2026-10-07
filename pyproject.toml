@@ -23,6 +23,8 @@ sheets = [
   "google-auth>=2.38,<3",
   "google-auth-oauthlib>=1.4,<2",
   "keyring>=25.7,<26",
+  "oauthlib>=4.0,<5",
+  "urllib3>=2.8,<3",
 ]
 gemini = [
   "google-genai>=2.21,<3",

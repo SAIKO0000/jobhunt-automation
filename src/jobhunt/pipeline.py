@@ -125,6 +125,7 @@ class Pipeline:
                     initial_snapshot,
                     batches,
                     manifests,
+                    run_id=str(result.run_id),
                 )
             records = [record for batch in batches for record in batch.records]
             result.records_fetched = len(records)

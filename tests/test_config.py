@@ -42,14 +42,29 @@ def test_checked_in_configuration_activates_only_owner_approved_feeds(config_dir
     assert len(manifests["jobicy"].fetch_endpoints) == 2
     assert all("industry=engineering" in value for value in manifests["jobicy"].fetch_endpoints)
     assert any("geo=apac" in value for value in manifests["jobicy"].fetch_endpoints)
-    assert load_profile_claims(config_dir, verified_only=True) == []
+    verified_claims = load_profile_claims(config_dir, verified_only=True)
+    assert {claim.claim_id for claim in verified_claims} == {
+        "portfolio_nextjs",
+        "relay_operations_workspace",
+        "accounting_modernization",
+        "resource_hive_booking",
+        "shoulder_dss_cv",
+    }
+    assert all(claim.verified for claim in verified_claims)
+    resource_hive = next(
+        claim
+        for claim in load_profile_claims(config_dir, verified_only=False)
+        if claim.claim_id == "resource_hive_booking"
+    )
+    assert "firebase" in resource_hive.skills
+    assert "php" not in resource_hive.skills
     policy = load_location_policy(config_dir)
     assert policy.mode is LocationMode.REMOTE_FIRST
     assert policy.under_one_hour_areas == []
     assert policy.one_to_two_hour_areas == []
     diagnostics = validate_all(config_dir)
-    assert len(diagnostics) == 2
-    assert diagnostics[-1].level == "info"
+    assert len(diagnostics) == 1
+    assert diagnostics[0].level == "info"
     analysis = load_analysis_config(config_dir)
     assert not analysis.gemini.enabled
     assert not analysis.ollama.enabled

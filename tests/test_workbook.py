@@ -25,6 +25,7 @@ from jobhunt.workbook.gateway import (
     _collapsed_column_group_requests,
     _dashboard_chart_requests,
     _formatting_requests,
+    _opportunity_width_requests,
     _presentation_cleanup_requests,
     _sanitized_google_error,
     _user_entered_value,
@@ -49,6 +50,23 @@ from jobhunt.workbook.schema import (
     dashboard_values,
     initial_tab_values,
 )
+
+
+def test_application_cost_is_hidden_but_retained_for_scoring() -> None:
+    cost_index = OPPORTUNITY_COLUMNS.index("Application Cost")
+    assert cost_index < len(DAILY_OPPORTUNITY_COLUMNS)
+    requests = _opportunity_width_requests(42)
+    assert any(
+        request.get("updateDimensionProperties", {}).get("range")
+        == {
+            "sheetId": 42,
+            "dimension": "COLUMNS",
+            "startIndex": cost_index,
+            "endIndex": cost_index + 1,
+        }
+        and request["updateDimensionProperties"].get("properties") == {"hiddenByUser": True}
+        for request in requests
+    )
 
 
 def _assert_matches_discovery_schema(

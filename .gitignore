@@ -14,6 +14,7 @@ build/
 .env.*
 !.env.example
 runtime/
+case pics/
 credentials*.json
 service-account*.json
 Mark-Daniel-Iguban-Resume.pdf

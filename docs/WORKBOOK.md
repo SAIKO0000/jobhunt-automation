@@ -41,7 +41,7 @@ still displays `ERROR` immediately.
 
 ## Daily queue
 
-The first 17 columns are visible by default:
+The daily queue shows 16 columns by default:
 
 1. Pipeline Stage
 2. Priority
@@ -51,15 +51,19 @@ The first 17 columns are visible by default:
 6. Fit Band
 7. Qualification
 8. Eligibility
-9. Application Cost
-10. Work Arrangement
-11. Location
-12. Salary
-13. Deadline
-14. Apply URL
-15. Next Action
-16. Next Action At
-17. Notes
+9. Work Arrangement
+10. Location
+11. Salary
+12. Deadline
+13. Apply URL
+14. Next Action
+15. Next Action At
+16. Notes
+
+`Application Cost` is still a protected machine-owned column between Work Arrangement
+and Location, but is hidden from the everyday view. The free-to-apply check continues to
+exclude or flag paywalled and uncertain listings; hiding it does not assume that every
+future source will be free. You can unhide the column if you need to inspect a decision.
 
 Final Score, Source, and Date Found remain available in the collapsed Review Details group.
 That group also shows seniority, required experience, location eligibility, compensation,
@@ -70,8 +74,9 @@ location or qualification failure wins, followed by manual review, then eligible
 protected `Excluded` tab and still indexed for deduplication. If later source facts change,
 the record can move between tables while preserving human-owned notes and workflow fields.
 
-Scheduled live runs also health-check existing Inbox listings. A confirmed source expiry or
-two consecutive 404/410 responses moves a stale listing to `Excluded`; it is never deleted.
+Scheduled live runs also health-check existing Inbox listings. A Himalayas source expiry,
+two exact "Job not found" results from separate runs at least 20 hours apart, or Jobicy's
+two consecutive 404/410 results move a stale listing to `Excluded`; it is never deleted.
 Ambiguous checks do nothing to the row. The hidden `System Events` tab records successful,
 inconclusive, unavailable, deferred, and archived observations for troubleshooting.
 

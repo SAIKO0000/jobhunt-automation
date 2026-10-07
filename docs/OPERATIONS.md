@@ -75,14 +75,18 @@ removal support `-WhatIf`; neither script is run automatically by repository set
 Scheduled output uses `--summary-only`, so logs contain run metadata and sanitized errors,
 not listing descriptions or credentials.
 
-Each scheduled live write also reviews existing `Inbox` rows from Himalayas and Jobicy.
-Seeing a record in the current successful API response confirms it is active. Absence from a
-filtered response is never treated as closure: the runtime sends an allowlisted `HEAD` request
-to at most ten old source URLs per run. A source expiry may archive a Himalayas row immediately;
-otherwise only two consecutive HTTP 404/410 observations archive it. Timeouts, DNS failures,
-redirects outside the source allowlist, rate limits, authorization failures, and 5xx responses
-are inconclusive and leave the opportunity in place. Archived rows retain all human fields in
-the hidden `Excluded` tab, and every observation is recorded in `System Events`.
+Each scheduled live write reviews up to ten existing `Inbox` rows from Himalayas and Jobicy,
+rotating from never-checked to least-recently-checked. Himalayas uses its public read-only
+`get_job_details` tool, at most four calls per minute. It checks even a listing still present in
+a cached search response. Two exact "Job not found" results from distinct runs at least 20
+hours apart archive the row; an active or inconclusive result resets this confirmation.
+Pending negatives are checked first once the 20-hour window opens; same-day repeats are skipped
+so they cannot postpone confirmation.
+Himalayas source expiry can also archive immediately. Jobicy retains its allowlisted `HEAD`
+checks and consecutive HTTP 404/410 confirmation. Timeouts, rate limits, malformed responses,
+and other ambiguous outcomes leave the row in place. Archived rows retain human fields in the
+hidden `Excluded` tab, cannot be restored by cached search results, and are audited in
+`System Events`. A large backlog takes multiple daily runs to check.
 
 ## Provider behavior
 

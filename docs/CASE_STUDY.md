@@ -100,7 +100,8 @@ conflicts, pending-run replay, credential failures, and the no-outbound-action i
 - Deterministic language rules can still misread a nuanced description.
 - Google Sheets protections are usability guardrails, not tamper-evident authorization.
 - The scheduler and secure credential backend are Windows-specific.
-- AI value has not been established because profile claims and providers remain disabled.
+- AI value has not been established because providers remain disabled; owner-approved claims
+  have not been used to validate AI output in production.
 - Employer-specific Greenhouse, Lever, and Ashby adapters need separately reviewed board
   identifiers before activation.
 

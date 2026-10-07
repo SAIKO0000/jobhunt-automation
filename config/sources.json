@@ -43,6 +43,7 @@
     "enabled": true,
     "owner_approved": true,
     "endpoint": "https://himalayas.app/jobs/api/search?q=virtual%20assistant&country=Philippines&seniority=Entry-level&sort=recent&page=1",
+    "availability_endpoint": "https://mcp.himalayas.app/mcp",
     "additional_endpoints": [
       "https://himalayas.app/jobs/api/search?q=software%20developer&country=Philippines&seniority=Entry-level&sort=recent&page=1",
       "https://himalayas.app/jobs/api/search?q=full%20stack%20developer&worldwide=true&seniority=Entry-level&sort=recent&page=1",
