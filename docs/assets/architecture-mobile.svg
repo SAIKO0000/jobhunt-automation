@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="1770" viewBox="0 0 720 1770" role="img" aria-labelledby="title description" style="max-width:100%;height:auto">
+  <title id="title">Local job-hunt automation architecture, narrow layout</title>
+  <desc id="description">A daily Windows task reads approved public feeds. Local Python checks and scores listings, then writes a review queue to Google Sheets. The user reviews and applies manually. Optional AI remains off and local recovery preserves work.</desc>
+  <defs>
+    <style>
+      text { font-family: "Segoe UI", Arial, sans-serif; }
+      .heading { fill: #14283f; font-size: 49px; font-weight: 700; letter-spacing: -1px; }
+      .subheading { fill: #53677d; font-size: 26px; }
+      .number { fill: #3367d6; font-size: 22px; font-weight: 700; }
+      .stage { fill: #14283f; font-size: 33px; font-weight: 700; }
+      .body { fill: #4c6076; font-size: 26px; }
+      .engine-number { fill: #b9d4ff; font-size: 22px; font-weight: 700; }
+      .engine-stage { fill: #ffffff; font-size: 35px; font-weight: 700; }
+      .engine-body { fill: #e3edff; font-size: 25px; }
+      .note-title { fill: #14283f; font-size: 27px; font-weight: 700; }
+      .note { fill: #4c6076; font-size: 22px; }
+      .safety { fill: #15594f; font-size: 32px; font-weight: 700; }
+      .safety-note { fill: #376d65; font-size: 23px; }
+    </style>
+  </defs>
+
+  <rect width="720" height="1770" fill="#f7f9fc"/>
+  <rect x="46" y="62" width="58" height="7" fill="#3367d6"/>
+  <text x="46" y="132" class="heading">A job search</text>
+  <text x="46" y="190" class="heading">you can audit</text>
+  <text x="46" y="240" class="subheading">Public feeds in. Review queue out.</text>
+  <text x="46" y="276" class="subheading">Applying stays human.</text>
+
+  <rect x="46" y="320" width="628" height="150" rx="15" fill="#ffffff" stroke="#cbd7e4" stroke-width="2"/>
+  <text x="78" y="363" class="number">01 / Trigger</text>
+  <text x="78" y="410" class="stage">Daily run</text>
+  <text x="78" y="448" class="body">Windows Task Scheduler · no overlap</text>
+
+  <path d="M360 473 V489 M352 482 L360 490 L368 482" fill="none" stroke="#667991" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="46" y="495" width="628" height="150" rx="15" fill="#ffffff" stroke="#cbd7e4" stroke-width="2"/>
+  <text x="78" y="538" class="number">02 / Collect</text>
+  <text x="78" y="585" class="stage">Approved feeds</text>
+  <text x="78" y="623" class="body">Himalayas + Jobicy · no scraper fallback</text>
+
+  <path d="M360 648 V664 M352 657 L360 665 L368 657" fill="none" stroke="#667991" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="46" y="670" width="628" height="210" rx="15" fill="#244bb8"/>
+  <text x="78" y="716" class="engine-number">03 / Decide locally</text>
+  <text x="78" y="767" class="engine-stage">Python pipeline</text>
+  <text x="78" y="810" class="engine-body">Normalize + deduplicate</text>
+  <text x="78" y="846" class="engine-body">Check cost, location + level · score</text>
+
+  <path d="M360 883 V899 M352 892 L360 900 L368 892" fill="none" stroke="#667991" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="46" y="905" width="628" height="150" rx="15" fill="#ffffff" stroke="#cbd7e4" stroke-width="2"/>
+  <text x="78" y="948" class="number">04 / Organize</text>
+  <text x="78" y="995" class="stage">Google Sheets review queue</text>
+  <text x="78" y="1033" class="body">Desktop OAuth · human-owned fields</text>
+
+  <path d="M360 1058 V1074 M352 1067 L360 1075 L368 1067" fill="none" stroke="#667991" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="46" y="1080" width="628" height="150" rx="15" fill="#edf7f5" stroke="#a8d2c7" stroke-width="2"/>
+  <text x="78" y="1123" class="number">05 / Human</text>
+  <text x="78" y="1170" class="stage">Your call</text>
+  <text x="78" y="1208" class="body">Review the fit · apply manually</text>
+
+  <rect x="46" y="1270" width="303" height="150" rx="14" fill="#fff9ed" stroke="#dcc697" stroke-width="2"/>
+  <text x="72" y="1316" class="note-title">Optional AI: off</text>
+  <text x="72" y="1356" class="note">Gemini / Ollama</text>
+  <text x="72" y="1388" class="note">needs approval</text>
+
+  <rect x="371" y="1270" width="303" height="150" rx="14" fill="#f0f4f8" stroke="#cbd7e4" stroke-width="2"/>
+  <text x="397" y="1316" class="note-title">Local recovery</text>
+  <text x="397" y="1356" class="note">Lease · snapshot</text>
+  <text x="397" y="1388" class="note">Pending replay</text>
+
+  <rect x="46" y="1460" width="628" height="245" rx="15" fill="#e8f5f1" stroke="#a8d2c7" stroke-width="2"/>
+  <rect x="46" y="1460" width="10" height="245" rx="5" fill="#16836f"/>
+  <text x="80" y="1518" class="safety">The system prepares</text>
+  <text x="80" y="1560" class="safety">decisions. You apply.</text>
+  <text x="80" y="1611" class="safety-note">No application or message</text>
+  <text x="80" y="1644" class="safety-note">is sent automatically.</text>
+</svg>

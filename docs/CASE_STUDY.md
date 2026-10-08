@@ -1,5 +1,22 @@
 # Case study: a zero-budget, policy-aware job-search assistant
 
+## Project facts for portfolio reuse
+
+This section is the factual source for a portfolio page; keep dated results and image captions
+attached to their evidence rather than presenting them as current or typical outcomes. The
+tables below are editorial reference material, not a requirement to reproduce tables on the
+website verbatim.
+
+| Item | Verified project fact |
+|---|---|
+| Creator and role | Mark Daniel Iguban — sole designer and developer; built for personal use. |
+| Status | Working local Windows workflow with daily scheduled runs. The source code is public, but the Google Sheets workbook is private. There is no hosted or self-service live demo. |
+| Source code | [GitHub repository](https://github.com/SAIKO0000/jobhunt-automation), MIT licensed. A repository link is the appropriate public call to action. |
+| Main stack | Python 3.12, Pydantic, `httpx`, `tenacity`, Windows Task Scheduler, Google Sheets API with desktop OAuth, Windows Credential Manager, local snapshots, and `pytest`. n8n and cloud runtime are not used. |
+| Active acquisition | Himalayas and Jobicy public feeds are the only enabled automated sources as of October 8, 2026. Restricted job sites require manual intake. |
+| AI status | Gemini and Ollama integrations are implemented but disabled; the documented production workflow uses deterministic rules. |
+| Cost boundary | No recurring platform charge in the chosen setup; it uses an existing Windows computer, disk, electricity, and internet connection. |
+
 ## The problem
 
 Searching for early-career technical and virtual-assistant work involves repeatedly checking
@@ -20,7 +37,8 @@ application, proposal, and message under human control.
 - **No autonomous outreach.** Approval in a spreadsheet could not submit a form or send a
   message.
 - **Data minimization.** OAuth credentials, workbook snapshots, logs, résumé contact details,
-  and live job-search activity could not enter the repository.
+  and personal workflow data stay out of the repository. Reviewed screenshots may show public
+  listing metadata, but not private notes, account details, or workbook links.
 - **Early-career realism.** Explicit senior roles, excessive experience requirements, unpaid
   work, and applicant fees needed to be removed without hiding uncertain cases from review.
 
@@ -85,12 +103,60 @@ a September 3, 2026 operational sample, it processed 119 listings from two sourc
 | Quarantined as malformed or unsafe | 0 |
 
 This demonstrates the purpose of the pipeline: reduce a large discovery batch to a small,
-explainable review queue while preserving audit and recovery information.
+explainable review queue while preserving audit and recovery information. The counts match a
+successful Task Scheduler entry in the private September 3 Run Log snapshot; the private
+snapshot and workbook ID are not published.
 
-The automated suite currently has 173 passing tests and 84.16% coverage. It exercises source
-parsing, host and response limits, formula-injection protection, qualification boundaries,
-deduplication, conservative listing-availability checks, workbook migration, human-edit
-conflicts, pending-run replay, credential failures, and the no-outbound-action invariant.
+The [dashboard](assets/dashboard.png) and [Technical opportunities view](assets/opportunities.png)
+are authentic captures from October 7, 2026, not images of the September 3 sample above.
+The first two pictured Himalayas listings returned exact-job details on the capture date;
+other visible links are not all independently verified and may expire. The screenshots show
+the interface and a later queue state, not proof of applications or hiring outcomes.
+
+As checked October 8, 2026, the automated suite has 198 passing tests and 84.50% statement
+coverage. It exercises source parsing, host and response limits, formula-injection protection,
+qualification boundaries, deduplication, conservative listing-availability checks, workbook
+migration, human-edit conflicts, pending-run replay, credential failures, and the
+no-outbound-action invariant.
+Coverage is a measure of executed code statements, not a success or reliability rate.
+
+## Evidence and image guide
+
+| Website claim or asset | Evidence and date | What it supports—and does not |
+|---|---|---|
+| 119 listings classified as 15 actionable, 3 needing review, and 101 excluded | Successful scheduled Run Log entry in a private September 3, 2026 snapshot | One operational sample. It does not establish hiring outcomes, a typical daily yield, or the state pictured in the later screenshots. |
+| [Dashboard screenshot](assets/dashboard.png) | Authentic private-workbook capture, October 7, 2026, after the 18:10 Manila run | The local-only safety banner, run health, and review interface at that moment. Its live totals are not the September 3 sample. |
+| [Technical view screenshot](assets/opportunities.png) | Authentic capture, October 7, 2026; the first two pictured Himalayas listings returned exact-job details that day | The queue's fields and saved Technical view. Other pictured links were not all independently checked and no listing is guaranteed to remain open. |
+| [Architecture diagram](assets/architecture.svg) and [narrow-screen diagram](assets/architecture-mobile.svg) | Designed illustrations of the checked-in local workflow | System relationships and the manual-action boundary. These are diagrams, not product screenshots. |
+| 198 tests; 84.50% statement coverage | Local `pytest --cov=jobhunt` run, October 8, 2026 | Automated-test execution at that revision, not a success rate or proof that every integration path was exercised. Re-run before publishing a later revision. |
+
+Use the Dashboard image for the overview and the Technical view for the filtering/review
+section. Keep their capture dates and limitations in captions; make the wide Technical image
+expandable rather than shrinking its row text to an unreadable thumbnail. Suggested captions:
+
+- **Dashboard:** “Private Google Sheets workbook, October 7, 2026. The daily local run was
+  healthy; no application or message was sent automatically.”
+- **Technical view:** “Technical review queue, October 7, 2026. Public listings are dated
+  snapshots; users check the original source before applying manually.”
+- **Architecture:** “Illustrative local workflow; applications and messages remain manual.”
+
+A private draft VA/Freelance capture is intentionally not among the published assets because
+some pictured listings had not passed the link verification needed to present them as a
+current queue.
+
+## Portfolio claim boundaries
+
+**Accurate short description:** A local Windows pipeline checks two approved public job
+feeds daily, applies explicit qualification and scoring rules, and prepares a Google Sheets
+review queue. The user decides whether to apply and takes that action manually.
+
+Do not describe this as a hosted service, a public live demo, an auto-apply bot, automated
+outreach, LinkedIn/Indeed/JobStreet scraping, or AI-powered production matching. Gemini and
+Ollama code paths exist but are disabled in the current configuration. Do not imply that
+every pictured link is still live, that the sample yields are typical, or that the project
+improved callback, interview, or hiring rates. “Zero-budget” means no recurring platform
+charges in the chosen setup; an existing Windows computer, disk, electricity, and internet
+access are still required.
 
 ## Limitations and next steps
 

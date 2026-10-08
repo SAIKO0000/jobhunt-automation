@@ -1,6 +1,9 @@
 # Local architecture
 
-![Local-first architecture with a manual application boundary](assets/architecture.svg)
+<picture>
+  <source media="(max-width: 760px)" srcset="assets/architecture-mobile.svg">
+  <img src="assets/architecture.svg" alt="Local-first job-hunt architecture: daily scheduler, approved feeds, Python qualification, Google Sheets review, then manual application" width="1600">
+</picture>
 
 ```text
 Windows Task Scheduler

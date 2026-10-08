@@ -8,10 +8,11 @@ A zero-platform-cost, local Windows opportunity-intelligence pipeline. It collec
 approved public job feeds, applies transparent eligibility and fit rules, and updates a
 user-owned Google Sheets workbook. Applications and messages always remain manual.
 
-![Actual Google Sheets dashboard from the private portfolio demo workbook](docs/assets/dashboard.png)
+![Google Sheets dashboard after a successful local run on October 7, 2026](docs/assets/dashboard.png)
 
-_Actual Google Sheets interface. The private demo copy contains public job listings; browser,
-account, workbook-link, and personal workflow information are excluded from the capture._
+_Actual private-workbook capture from October 7, 2026, after the 18:10 Manila run. Browser,
+account, workbook-link, and personal workflow information are outside the frame. These live
+queue totals are not the September 3 sample reported below._
 
 ## Why this exists
 
@@ -29,14 +30,19 @@ The result is intentionally local-first:
 - Local snapshots, leases, and pending-run files support conflict-safe recovery.
 - Optional Gemini/Ollama analysis is disabled by default and has no paid fallback.
 
-![Actual Google Sheets opportunities queue populated with public job listings](docs/assets/opportunities.png)
+![Technical opportunities view showing real public listings, eligibility, location, salary, deadlines, and source links](docs/assets/opportunities.png)
 
-_Public listing data is attributed in the workbook to Himalayas or Jobicy and retains its
-source link. Personal notes, contacts, application dates, and outcomes are not shown._
+_Actual Technical view captured October 7, 2026. The first two Himalayas listings returned
+exact-job details on the capture date; the image is not a guarantee that every pictured link
+is still live. Other rows may need review or have since expired. Public listings retain source
+links in the workbook; private notes, contacts, and application outcomes are not shown._
 
 ## Architecture
 
-![Local-first architecture with a manual application boundary](docs/assets/architecture.svg)
+<picture>
+  <source media="(max-width: 760px)" srcset="docs/assets/architecture-mobile.svg">
+  <img src="docs/assets/architecture.svg" alt="Local-first job-hunt architecture: daily scheduler, approved feeds, Python qualification, Google Sheets review, then manual application" width="1600">
+</picture>
 
 Task Scheduler provides only the time trigger. The Python package owns policy, validation,
 scoring, provider gates, workbook conflict detection, and recovery. n8n was deliberately
@@ -57,8 +63,9 @@ A scheduled run on September 3, 2026 processed 119 records from two approved sou
 | Excluded | 101 |
 | Quarantined | 0 |
 
-This is an operational sample, not evidence of applications, interviews, or hiring outcomes.
-The current suite contains 173 tests with 84.16% coverage.
+This is a September 3 operational sample, not the October 7 screenshot state or evidence of
+applications, interviews, or hiring outcomes. As checked October 8, 2026, the suite has
+198 passing tests and 84.50% statement coverage.
 
 ## Safety boundary
 
